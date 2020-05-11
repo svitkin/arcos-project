@@ -16,6 +16,7 @@ library(stringr)
 library(gt)
 library(geepack)
 
+# Prepare data for modelling -------
 nj_data <- 
   vroom(file.path("data", "nj-regression-data.csv")) %>% 
   group_by(buyer_county) %>% 
@@ -89,6 +90,7 @@ poisson_model <-
         data = nj_data_demeaned,
         family = poisson,
         offset = log(pop10),
+        # These parameters had best optimization results
         nAGQ = 7,
         control=glmerControl(optimizer="bobyqa",
                              optCtrl=list(maxfun=2e5)))
@@ -131,6 +133,7 @@ summary(model_gee)
 summary(poisson_model)
 saveRDS(poisson_model, file.path("output", "poisson-model-object.rds"))
 
+# Create presentation ready output -------------------
 formatted_names_df <-
   tribble(
     ~term, ~nice_name,
@@ -190,7 +193,9 @@ model_df %>%
   filter(group == "fixed", nice_name != "Intercept") %>%
   mutate_if(is.numeric, function(col) round(col, 2)) %>% 
   mutate(nice_name = 
-           ifelse(p.value < 0.05, paste0("<strong>", nice_name, "</strong>"), nice_name),
+           ifelse(p.value < 0.05, 
+                  paste0("<strong>", nice_name, "</strong>"), 
+                  nice_name),
          pctg = paste0(pctg, " (", pctg_low, ", ", pctg_high, ")")) %>% 
   group_by(`Variable Type`) %>% 
   select(`Variable Type`, 
@@ -214,6 +219,7 @@ model_df %>%
   ) %>% 
   saveRDS(file.path("output", "poisson-pctchange-table.rds"))
 
+# Diagnostics of poisson model ------------------
 check_overdispersion(poisson_model)
 resids <- simulateResiduals(poisson_model, n = 10000)
 saveRDS(resids, file.path("output", "simulated-residuals.rds"))
@@ -248,7 +254,7 @@ plot_residuals(resids, poisson_model, "up_to_18")
 plot_residuals(resids, poisson_model, "from_18_to_34")
 plot_residuals(resids, poisson_model, "from_35_to_59_years")
 
-
+# Output effects plot --------
 plot_names_df <-
   tribble(
     ~term, ~plot_name,
