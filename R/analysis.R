@@ -254,6 +254,7 @@ plot_residuals(resids, poisson_model, "up_to_18")
 plot_residuals(resids, poisson_model, "from_18_to_34")
 plot_residuals(resids, poisson_model, "from_35_to_59_years")
 
+
 # Output effects plot --------
 plot_names_df <-
   tribble(
@@ -286,4 +287,4 @@ model_plot <-
   theme(legend.position = "none") +
   ggtitle(str_wrap("Expected Change in Prescription Opioid Related Hospitalizations in New Jersey Counties", 60))
 
-saveRDS(model_plot, file.path("output", "model-plot.rds"))
+saveRDS(model_plot, file.path("output", "model-plot.rds")))
