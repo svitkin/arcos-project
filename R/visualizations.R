@@ -62,7 +62,7 @@ plot_county_var(nj_data %>% filter(year %in% 2006:2015),
 plot_county_var(nj_data %>% filter(year %in% 2006:2014),
                 opioids_supplied_per_capita,
                 "Opioid Pills Supplied per capita", 
-                "NJ County Level Changes in Opioid Pill Supplied",
+                "NJ County Level Changes in Opioid Pills Supplied",
                 "https://CRAN.R-project.org/package=arcos")
 plot_county_var(nj_data %>% 
                   filter(year %in% 2008:2015),

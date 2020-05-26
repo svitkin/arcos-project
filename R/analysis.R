@@ -191,13 +191,15 @@ model_df %>%
            ifelse(str_detect(term, "mean") | str_detect(term, "year_\\d{2}"), 
                   "Between", "Within")) %>% 
   filter(group == "fixed", nice_name != "Intercept") %>%
-  mutate_if(is.numeric, function(col) round(col, 2)) %>% 
-  mutate(nice_name = 
-           ifelse(p.value < 0.05, 
-                  paste0("<strong>", nice_name, "</strong>"), 
-                  nice_name),
-         pctg = paste0(pctg, " (", pctg_low, ", ", pctg_high, ")")) %>% 
+  mutate_at(vars(starts_with("pctg")), function(col) round(col, 2)) %>%
+  mutate(p.value = round(p.value, 3)) %>% 
+  mutate(pctg = paste0(pctg, " (", pctg_low, ", ", pctg_high, ")"),
+         is_bold = p.value < 0.05 | term == "lag_prescriptions",
+         nice_name = ifelse(is_bold, paste0("<strong>", nice_name, "</strong>"), nice_name),
+         pctg = ifelse(is_bold, paste0("<strong>", pctg, "</strong>"), pctg),
+         p.value = ifelse(is_bold, paste0("<strong>", p.value, "</strong>"), p.value)) %>%
   group_by(`Variable Type`) %>% 
+  arrange(desc(is_bold)) %>% 
   select(`Variable Type`, 
          `Independent Variable` = nice_name, 
          `Percent Change in Prescription Opioid Related Hopsitalizations (per 10,000)` = pctg, 
@@ -206,7 +208,7 @@ model_df %>%
   tab_header(
     title = "Poisson Random Intercept Model Results"
   ) %>% 
-  fmt_markdown(columns = vars(`Independent Variable`)) %>% 
+  fmt_markdown(columns = everything()) %>% 
   tab_footnote(
     footnote = paste0("The random intercept has raw estimate of ",
                       model_df %>% filter(term == "(Intercept)") %>% pull(estimate) %>% round(2),
@@ -217,6 +219,9 @@ model_df %>%
     locations = cells_column_labels(
       columns = vars(`Independent Variable`))
   ) %>% 
+  tab_options(row_group.font.size = "20px",
+              row_group.padding = "10px",
+              row_group.border.top.color = "black") %>% 
   saveRDS(file.path("output", "poisson-pctchange-table.rds"))
 
 # Diagnostics of poisson model ------------------

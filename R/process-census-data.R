@@ -8,8 +8,7 @@ library(readxl)
 library(tidyr)
 library(tidycensus)
 
-# Tidycensus api -----
-# census_api_key("c12e1b2c2bf43fe1b3495f12e0ec9b9f42d603df", install = TRUE)
+# Tidycensus api functions -----
 generate_census_vars <- function(census_table, num_vars) {
   paste0(census_table, "_", 
          str_pad(1:num_vars, 3, side = "left", "0"))
